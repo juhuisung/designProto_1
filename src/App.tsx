@@ -1,12 +1,58 @@
-import { useMemo, useState } from "react"
+import { createClient } from "@supabase/supabase-js"
+import { useEffect, useMemo, useState } from "react"
 import { clueLabels, crimeData, type ClueKey } from "./data"
 
 const format = new Intl.NumberFormat("ko-KR")
+const sensorFormat = new Intl.NumberFormat("ko-KR", {
+  maximumFractionDigits: 3,
+})
 const percent = new Intl.NumberFormat("ko-KR", { maximumFractionDigits: 1 })
 const compact = new Intl.NumberFormat("ko-KR", {
   notation: "compact",
   maximumFractionDigits: 1,
 })
+
+interface Reading {
+  id: number | string
+  value: number
+  created_at: string
+}
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+const supabase =
+  supabaseUrl && supabaseAnonKey
+    ? createClient(supabaseUrl, supabaseAnonKey)
+    : null
+
+function parseReading(row: Record<string, unknown>): Reading | null {
+  if (
+    typeof row.value !== "number" &&
+    (typeof row.value !== "string" || !row.value.trim())
+  ) {
+    return null
+  }
+  const value = Number(row.value)
+  if (
+    (typeof row.id !== "number" && typeof row.id !== "string") ||
+    typeof row.created_at !== "string" ||
+    Number.isNaN(Date.parse(row.created_at)) ||
+    !Number.isFinite(value)
+  ) {
+    return null
+  }
+  return { id: row.id, value, created_at: row.created_at }
+}
+
+function mergeReadings(...groups: Reading[][]): Reading[] {
+  const byId = new Map<string, Reading>()
+  for (const reading of groups.flat()) {
+    byId.set(String(reading.id), reading)
+  }
+  return [...byId.values()]
+    .sort((a, b) => a.created_at.localeCompare(b.created_at))
+    .slice(-100)
+}
 
 const COLORS = [
   "#ff5c35",
@@ -338,12 +384,210 @@ export default function App() {
           </div>
         </section>
 
+        <SerialDashboard />
+
         <footer>
           <span>출처: 통계청 국가통계포털(KOSIS), 범죄의 수사단서 2025</span>
           <span>숫자의 ‘-’는 0건으로 처리했습니다.</span>
         </footer>
       </main>
     </div>
+  )
+}
+
+function SerialDashboard() {
+  const [readings, setReadings] = useState<Reading[]>([])
+  const [connectionStatus, setConnectionStatus] = useState("연결 준비 중")
+  const [dataError, setDataError] = useState("")
+  const currentReading = readings.at(-1)
+  const values = readings.map((reading) => reading.value)
+  const chartWidth = 800
+  const chartHeight = 240
+  const chartPadding = 32
+  const minimum = values.length ? Math.min(...values) : 0
+  const maximum = values.length ? Math.max(...values) : 0
+  const chartPoints = values
+    .map((value, index) => {
+      const x =
+        values.length === 1
+          ? chartWidth / 2
+          : chartPadding +
+            (index / (values.length - 1)) * (chartWidth - chartPadding * 2)
+      const y =
+        maximum === minimum
+          ? chartHeight / 2
+          : chartHeight -
+            chartPadding -
+            ((value - minimum) / (maximum - minimum)) *
+              (chartHeight - chartPadding * 2)
+      return `${x},${y}`
+    })
+    .join(" ")
+
+  useEffect(() => {
+    const client = supabase
+    if (!client) {
+      setConnectionStatus("설정 오류")
+      setDataError(
+        ".env에 VITE_SUPABASE_URL과 VITE_SUPABASE_ANON_KEY를 설정해 주세요.",
+      )
+      return
+    }
+
+    let active = true
+    const latestReadingsQuery = client
+      .from("readings")
+      .select("id, value, created_at")
+      .order("created_at", { ascending: false })
+      .limit(100)
+    const removeChannel = client.removeChannel.bind(client)
+    const channel = client
+      .channel("readings-dashboard")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "readings" },
+        (payload) => {
+          const reading = parseReading(payload.new)
+          if (!reading) {
+            setDataError(
+              "새 readings 행에 id, value, created_at 값이 필요합니다.",
+            )
+            return
+          }
+          setReadings((current) => mergeReadings(current, [reading]))
+        },
+      )
+      .subscribe((status, error) => {
+        if (!active) return
+        if (status === "SUBSCRIBED") {
+          setConnectionStatus("Realtime 연결됨")
+        } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+          setConnectionStatus("Realtime 연결 실패")
+          setDataError(error?.message ?? "Realtime 구독에 실패했습니다.")
+        } else if (status === "CLOSED") {
+          setConnectionStatus("Realtime 연결 종료")
+        }
+      })
+
+    async function loadLatestReadings() {
+      const { data, error } = await latestReadingsQuery
+
+      if (!active) return
+      if (error) {
+        setDataError(`최근 데이터를 불러오지 못했습니다: ${error.message}`)
+        return
+      }
+
+      const parsedRows = (data ?? []).map((row) => parseReading(row))
+      const rows = parsedRows
+        .filter((row): row is Reading => row !== null)
+        .reverse()
+      setReadings((current) => mergeReadings(rows, current))
+      setDataError(
+        rows.length === parsedRows.length
+          ? ""
+          : "일부 readings 행에 유효한 id, value 또는 created_at 값이 없습니다.",
+      )
+    }
+
+    void loadLatestReadings()
+    return () => {
+      active = false
+      void removeChannel(channel)
+    }
+  }, [])
+
+  return (
+    <section className="panel serial-panel mt-5">
+      <div className="panel-head serial-panel-head">
+        <div>
+          <p className="eyebrow">실시간 데이터</p>
+          <h2>센서 readings</h2>
+        </div>
+        <span className="soft-badge">{connectionStatus}</span>
+      </div>
+
+      <div className="serial-content">
+        <div className="serial-current">
+          <span>현재값</span>
+          <strong>
+            {currentReading === undefined
+              ? "—"
+              : sensorFormat.format(currentReading.value)}
+          </strong>
+          <small>
+            {currentReading
+              ? new Date(currentReading.created_at).toLocaleString("ko-KR")
+              : "저장된 값 없음"}
+          </small>
+        </div>
+
+        <div className="serial-chart-panel">
+          <div className="serial-chart-heading">
+            <div>
+              <strong>최근 readings</strong>
+              <span>최신 100개 · Supabase Realtime</span>
+            </div>
+            <span className="serial-count">{readings.length} / 100</span>
+          </div>
+          {values.length ? (
+            <div className="serial-chart">
+              <svg
+                viewBox={`0 0 ${chartWidth} ${chartHeight}`}
+                role="img"
+                aria-label={`최근 ${values.length}개 readings 선 그래프`}
+                preserveAspectRatio="none"
+              >
+                {[0, 0.5, 1].map((fraction) => {
+                  const y =
+                    chartPadding + fraction * (chartHeight - chartPadding * 2)
+                  return (
+                    <line
+                      key={fraction}
+                      x1={chartPadding}
+                      x2={chartWidth - chartPadding}
+                      y1={y}
+                      y2={y}
+                      className="serial-grid-line"
+                    />
+                  )
+                })}
+                <polyline
+                  points={chartPoints}
+                  className="serial-chart-line"
+                  vectorEffect="non-scaling-stroke"
+                />
+                {values.length === 1 && (
+                  <circle
+                    cx={chartWidth / 2}
+                    cy={chartHeight / 2}
+                    r="5"
+                    className="serial-chart-point"
+                  />
+                )}
+              </svg>
+              <div className="serial-chart-range">
+                <span>최소 {sensorFormat.format(minimum)}</span>
+                <span>최대 {sensorFormat.format(maximum)}</span>
+              </div>
+            </div>
+          ) : (
+            <div className="serial-empty-chart">
+              {dataError || "Supabase에서 readings 데이터를 불러오는 중입니다."}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <p className="serial-message" role="status" aria-live="polite">
+        <span
+          className={
+            connectionStatus === "Realtime 연결됨" ? "is-connected" : ""
+          }
+        />
+        {dataError || connectionStatus}
+      </p>
+    </section>
   )
 }
 
