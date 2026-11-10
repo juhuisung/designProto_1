@@ -1,6 +1,6 @@
 import type { Status } from "../lib/device"
 
-const STATUS_CONTENT: Record<Status, { label: string; className: string }> = {
+const STATUS_CONTENT: Record<Status, { label: string className: string }> = {
   disconnected: { label: "연결 안 됨", className: "is-disconnected" },
   connecting: { label: "연결 중…", className: "is-connecting" },
   connected: { label: "연결됨", className: "is-connected" },
