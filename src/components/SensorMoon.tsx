@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react"
+import { moonImageUrl } from "../assets/moonImage"
 import { SENSOR_MAX, SENSOR_MIN } from "../product"
 
 type SensorMoonProps = {
@@ -28,7 +29,7 @@ export function SensorMoon({ value, power }: SensorMoonProps) {
         role="img"
         aria-label={power ? `달 밝기 ${percent}%` : "달 꺼짐"}
       >
-        <img src="/images/moon.webp" alt="" />
+        <img src={moonImageUrl} alt="" />
       </div>
       <p className="t-value sensor-value">
         {value === undefined ? "—" : numberFormat.format(value)}
