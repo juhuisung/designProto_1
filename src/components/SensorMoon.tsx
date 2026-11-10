@@ -28,7 +28,7 @@ export function SensorMoon({ value, power }: SensorMoonProps) {
         role="img"
         aria-label={power ? `달 밝기 ${percent}%` : "달 꺼짐"}
       >
-        <img src="/images/moon.webp" alt="" />
+        <img src={`${import.meta.env.BASE_URL}images/moon.webp`} alt="" />
       </div>
       <p className="t-value sensor-value">
         {value === undefined ? "—" : numberFormat.format(value)}
