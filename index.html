@@ -1,16 +1,209 @@
 <!doctype html>
-<html lang="ko">
+<html lang="en">
   <head>
-    <!-- figma:head-start -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>대한민국 범죄 통계</title>
-    <!-- figma:head-end -->
+    <meta name="theme-color" content="#ffffff" />
+    <title>Levit Lamp — Design Study</title>
+    <link rel="stylesheet" href="./style.css" />
   </head>
   <body>
-    <!-- figma:body-start -->
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-    <!-- figma:body-end -->
+    <main class="design-frame" id="top">
+      <header class="frame-header">
+        <a class="brand-mark" href="#top" aria-label="Levit Lamp home">
+          <svg
+            class="brand-symbol"
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <path d="M4 0L4 16L6 16L6 -8.74228e-08L4 0Z" />
+            <path d="M10 4L10 16L12 16L12 4L10 4Z" />
+            <path d="M15 4H1V6H15V4Z" />
+            <path d="M14 4L14 16L16 16L16 4L14 4Z" />
+            <path d="M-6.99382e-07 0L0 16L2 16L2 -8.74228e-08L-6.99382e-07 0Z" />
+          </svg>
+          <span class="brand-copy">LEVIT<small>Simply lit.<br />Simply light.</small></span>
+        </a>
+        <nav aria-label="Page sections">
+          <a href="#about">Brand</a>
+          <a href="#process">Process</a>
+          <a href="#principles">Principles</a>
+          <a href="#collection">Collection</a>
+          <a class="nav-arrow" href="#collection" aria-label="Go to collection">↗</a>
+        </nav>
+      </header>
+
+      <section class="hero" id="about" aria-label="Levit Lamp introduction">
+        <div class="hero-square" aria-hidden="true"></div>
+        <span class="hero-line" aria-hidden="true"></span>
+        <span class="hero-dot" aria-hidden="true"></span>
+        <h1>LEVIT<br />LAMP</h1>
+
+        <div class="hero-copy">
+          <p class="copy-label"><span>01</span><span>Designed<br />for Every Hand</span></p>
+          <div class="hero-description">
+            <p>
+              At LEVIT, we believe design begins with understanding people,
+              their habits, needs, and everyday experiences. By looking closely
+              at the ordinary, we discover overlooked details and new
+              possibilities.
+            </p>
+            <p>
+              We explore how people interact with the world around them,
+              questioning the familiar to find ways of making things better,
+              simpler, and more meaningful.
+            </p>
+            <p>
+              Our approach balances purpose with possibility, function with
+              feeling, and simplicity with character.
+            </p>
+            <p>
+              To us, design goes beyond objects. It is about how things feel,
+              how they fit into people's lives, and the small moments they
+              improve.
+            </p>
+            <p>
+              LEVIT creates thoughtful designs that bring meaningful change to
+              everyday life.
+            </p>
+          </div>
+        </div>
+
+        <p class="hero-statement">
+          Design is not<br />
+          about what is new.<br />
+          It is about what<br />
+          is meaningful.
+        </p>
+
+        <img
+          class="hero-photo"
+          src="/images/levitmodel.jpg"
+          alt="A person holding the illuminated yellow Levit lamp"
+          width="675"
+          height="450"
+        />
+      </section>
+
+      <section class="process" id="process" aria-label="Design process">
+        <p class="section-label"><span>02</span> Design Process</p>
+        <ol class="process-steps">
+          <li>Observe</li>
+          <li>Discover</li>
+          <li>Explore</li>
+          <li>Create</li>
+          <li>Refine</li>
+          <li>Deliver</li>
+        </ol>
+        <h2 class="process-title" aria-label="Design Process">
+          DESIGN<br />PROCESS
+        </h2>
+        <img
+          class="yellow-texture"
+          src="/images/levittextureyellow.png"
+          alt=""
+          width="90"
+          height="450"
+        />
+        <img
+          class="grey-texture"
+          src="/images/levittexturegrey.png"
+          alt=""
+          width="675"
+          height="450"
+        />
+        <span class="process-dot" aria-hidden="true"></span>
+      </section>
+
+      <section class="principles" id="principles" aria-label="Design principles">
+        <p class="section-label"><span>03</span> Design Principles</p>
+        <span class="principles-letter" aria-hidden="true">D</span>
+        <div class="principle principle-one">
+          <p class="principle-label">Human Centered</p>
+          <p>Designed around people, their needs, and everyday experiences.</p>
+        </div>
+        <div class="principle principle-two">
+          <p class="principle-label">Thoughtful Simplicity</p>
+          <p>Removing the unnecessary to make room for what matters.</p>
+        </div>
+        <div class="principle principle-three">
+          <p class="principle-label">Meaningful Innovation</p>
+          <p>Designed around people, their needs, and everyday experiences.</p>
+        </div>
+        <div class="principle principle-four">
+          <p class="principle-label">Purposeful Form</p>
+          <p>Designed around people, their needs, and everyday experiences.</p>
+        </div>
+        <span class="principles-dot" aria-hidden="true"></span>
+      </section>
+
+      <section class="collection" id="collection" aria-label="Levit collection">
+        <p class="section-label"><span>04</span> Collection</p>
+        <h2>COLLECTION</h2>
+        <img
+          class="collection-cmf"
+          src="/images/levitphotocmf.png"
+          alt="Levit lamps in the collection's pastel color palette"
+          width="675"
+          height="450"
+        />
+        <img
+          class="collection-bedroom"
+          src="/images/levitbedroom.png"
+          alt="Yellow Levit lamp on a bedside table"
+          width="675"
+          height="450"
+        />
+        <span class="collection-dot" aria-hidden="true"></span>
+      </section>
+
+      <footer class="frame-footer">
+        <div class="footer-brand">
+          <svg
+            class="brand-symbol footer-symbol"
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <path d="M4 0L4 16L6 16L6 -8.74228e-08L4 0Z" />
+            <path d="M10 4L10 16L12 16L12 4L10 4Z" />
+            <path d="M15 4H1V6H15V4Z" />
+            <path d="M14 4L14 16L16 16L16 4L14 4Z" />
+            <path d="M-6.99382e-07 0L0 16L2 16L2 -8.74228e-08L-6.99382e-07 0Z" />
+          </svg>
+          <span class="footer-brand-name">LEVIT</span>
+          <small>Simply lit.<br />Simply light.</small>
+        </div>
+        <nav class="footer-nav" aria-label="Footer navigation">
+          <a href="#about">Brand</a>
+          <a href="#process">Process</a>
+          <a href="#principles">Principles</a>
+          <a href="#collection">Collection</a>
+        </nav>
+        <p class="footer-signature">JH</p>
+        <p class="footer-number">05</p>
+        <p class="footer-title">CONTACT</p>
+        <span class="footer-rule" aria-hidden="true"></span>
+        <img
+          class="footer-texture"
+          src="/images/levitphotolasttexture.png"
+          alt=""
+          width="257"
+          height="257"
+        />
+        <a class="footer-email" href="mailto:levitcm@gmail.com">levitcm@gmail.com</a>
+        <p class="footer-socials"><span>Facebook</span><span>Instagram</span></p>
+        <p class="footer-credit">© LEVIT — Design for Everyday Life</p>
+        <span class="footer-orbit" aria-hidden="true"></span>
+      </footer>
+    </main>
+    <script type="module" src="/src/lamp-scroll.js"></script>
   </body>
 </html>
